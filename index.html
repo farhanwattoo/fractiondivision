@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Fraction Division Calculator | Step-by-Step, Glossary & Quiz</title>
+  <title>分数の割り算を解く！計算機と丁寧なやり方解説 - 分数の割り算.com</title>
   <meta name="description"
-    content="The ultimate fraction division diagnostics suite. Handle mixed numbers, learn the reciprocal rule, explore a math glossary, and practice with advanced level quizzes.">
-  <link rel="stylesheet" href="styles.css">
-  
-  <meta property="og:title" content="FractionDev Pro: Division, Visualization, and Practice">
-  <meta property="og:description" content="A comprehensive math platform for dividing fractions. Features step-by-step logic and interactive practice modes for students.">
-  <meta property="og:type" content="website">
-
+    content="誰でも簡単に分数の割り算を計算できるツール。帯分数、仮分数、整数の入力に対応。計算結果だけでなく、途中式や解き方をステップバイステップで詳しく解説。算数・数学の学習や宿題の答え合わせに最適。">
+  <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>➗</text></svg>">
+  <link rel="stylesheet" href="styles.css">
 
-  <!-- JSON-LD FAQ Schema for SEO -->
+  <!-- Open Graph -->
+  <meta property="og:title" content="分数の割り算計算機 | 途中式と練習モード付き">
+  <meta property="og:description" content="分数÷分数を一瞬で解決。途中式も表示されるので学習に最適です。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://xn--n8jxc0d306o4xmc.com/">
+
+  <!-- JSON-LD FAQ Schema (Japanese) -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -23,18 +25,18 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "How do you divide a fraction by a whole number?",
+          "name": "分数を分数で割る方法は？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "To divide a fraction by a whole number, treat the whole number as a fraction over 1, find its reciprocal, and then multiply. For example, dividing 1/2 by 5 becomes 1/2 × 1/5 = 1/10."
+            "text": "分数の割り算は、「わる数」の分子と分母をひっくり返して（逆数にして）、かけ算に直して計算します。例えば、1/2 ÷ 3/4 = 1/2 × 4/3 = 4/6 = 2/3 となります。"
           }
         },
         {
           "@type": "Question",
-          "name": "Why is dividing by a fraction the same as multiplying by its reciprocal?",
+          "name": "帯分数の割り算はどうすればいいですか？",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Dividing by a value is defined as multiplying by its multiplicative inverse. Since the inverse of a fraction is its reciprocal (flipped), division results in the same numerical outcome as multiplication by the flip."
+            "text": "帯分数は一度すべて「仮分数」に直してから、逆数をかけて計算します。整数部分を分母とかけ、分子に足すことで仮分数に変換できます。"
           }
         }
       ]
@@ -46,132 +48,135 @@
   <header>
     <a href="index.html" class="brand">
       <div class="brand-icon">➗</div>
-      <span class="brand-name">FractionDev Pro</span>
+      <span class="brand-name">分数の割り算.com</span>
     </a>
-    <nav class="desktop-nav" style="display: flex; align-items: center; gap: 1rem;">
-      <button id="dark-mode-toggle" class="btn-outline" style="padding: 0.5rem; border-radius: 50%; width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;" title="Toggle Dark Mode">🌓</button>
-      <div id="lang-toggle" class="lang-toggle">English / 日本語</div>
-      <a href="#quiz" style="text-decoration: none; color: var(--text-muted); font-weight: 500;">Practice</a>
+    <nav class="desktop-nav">
+      <a href="#how-to" style="text-decoration: none; color: var(--text-muted); font-weight: 500;">やり方</a>
+      <a href="#quiz" style="text-decoration: none; color: var(--text-muted); font-weight: 500; margin-left: 1.5rem;">練習問題</a>
+      <a href="#glossary" style="text-decoration: none; color: var(--text-muted); font-weight: 500; margin-left: 1.5rem;">用語集</a>
     </nav>
   </header>
 
   <main>
     <section class="hero">
-        <h1 id="hero-title" style="font-size: 3.5rem;">Fraction Division. <span>Deepened Diagnostics.</span></h1>
-        <p id="hero-subtitle">Comprehensive step-by-step solver with visual analytics and adaptive practice modes.</p>
+        <h1>分数の割り算を、<span>もっとシンプルに。</span></h1>
+        <p>帯分数も整数もOK。数値を入力するだけで、正しい答えと「なぜそうなるのか」という途中式を詳しく解説します。</p>
     </section>
 
-    <!-- Calculator Section -->
+    <!-- Calculator Card -->
     <section class="calculator-card">
       <div class="fraction-grid">
         <div class="fraction-group">
-          <input type="number" id="w1" class="whole-part" placeholder="W" title="Whole Part">
+          <input type="number" id="w1" class="whole-part" placeholder="整" title="整数の部分">
           <div class="input-box">
-            <input type="number" id="n1" class="num-input" placeholder="N">
+            <input type="number" id="n1" class="num-input" placeholder="分">
             <div class="fraction-line"></div>
-            <input type="number" id="d1" class="den-input" placeholder="D">
+            <input type="number" id="d1" class="den-input" placeholder="母">
           </div>
         </div>
         <div class="operator">÷</div>
         <div class="fraction-group">
-          <input type="number" id="w2" class="whole-part" placeholder="W">
+          <input type="number" id="w2" class="whole-part" placeholder="整">
           <div class="input-box">
-            <input type="number" id="n2" class="num-input" placeholder="N">
+            <input type="number" id="n2" class="num-input" placeholder="分">
             <div class="fraction-line"></div>
-            <input type="number" id="d2" class="den-input" placeholder="D">
+            <input type="number" id="d2" class="den-input" placeholder="母">
           </div>
         </div>
       </div>
       <div class="actions">
-        <button id="calc-btn" class="btn btn-primary">Analyze Equation</button>
-        <button id="print-btn" class="btn btn-outline">Generate PDF</button>
-        <button id="reset-btn" class="btn btn-outline">Clear</button>
-      </div>
-
-      <!-- Advanced Visualizer -->
-      <div id="visualizer-area" class="visualizer-area" style="display:none; border-top: 1px solid var(--border-color); padding-top: 2rem;">
-          <h4 style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1rem;">Visual Proportions</h4>
-          <div class="vis-row">
-              <span style="width: 60px; font-size: 0.75rem; font-weight: 800;">FRACTION A</span>
-              <div class="bar-container"><div id="bar-a" class="bar-fill"></div></div>
-          </div>
-          <div class="vis-row">
-              <span style="width: 60px; font-size: 0.75rem; font-weight: 800;">FRACTION B</span>
-              <div class="bar-container"><div id="bar-b" class="bar-fill" style="background: var(--secondary);"></div></div>
-          </div>
+        <button id="calc-btn" class="btn btn-primary">計算して解き方を見る</button>
+        <button id="print-btn" class="btn btn-outline">印刷用ページを表示</button>
+        <button id="reset-btn" class="btn btn-outline">リセット</button>
       </div>
 
       <!-- Result Area -->
       <div id="result-section" class="result-section">
-        <h2 id="result-title" class="result-header" style="color: var(--primary);">Step-by-Step Breakdown</h2>
+        <h2 class="result-header">計算結果</h2>
         <div id="final-result" style="font-size: 3.5rem; text-align: center; margin-bottom: 2rem; font-family: 'Lexend', sans-serif;"></div>
         <div style="text-align: center; margin-bottom: 3rem;">
-            <button id="copy-btn" class="btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1.25rem;">📝 Copy for Spreadsheet</button>
+            <button id="copy-btn" class="btn-outline" style="font-size: 0.85rem; padding: 0.5rem 1.25rem;">📝 答えをコピー</button>
         </div>
+        <h3 style="margin-bottom: 2rem; color: var(--text-main);">途中式の解説:</h3>
         <div id="result-steps"></div>
       </div>
     </section>
 
-    <!-- Quiz Mode (Updated) -->
-    <section id="quiz" class="quiz-container">
-        <h2 id="quiz-title">Interactive Training</h2>
-        <div class="quiz-tabs" id="quiz-levels">
-            <button class="tab-btn active" data-level="easy">Level 1 (Easy)</button>
-            <button class="tab-btn" data-level="medium">Level 2 (Normal)</button>
-            <button class="tab-btn" data-level="hard">Level 3 (Pro)</button>
+    <!-- Visualizer (Optional Advanced) -->
+    <section id="visualizer-area" class="calculator-card" style="display:none; margin-top:-2rem;">
+        <h3 style="font-size: 1rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1.5rem;">視覚的なイメージ</h3>
+        <div class="visualizer-area">
+            <div class="vis-row">
+                <span style="width: 80px; font-size: 0.85rem; font-weight: 800;">分数 A:</span>
+                <div class="bar-container"><div id="bar-a" class="bar-fill"></div></div>
+            </div>
+            <div class="vis-row">
+                <span style="width: 80px; font-size: 0.85rem; font-weight: 800;">分数 B:</span>
+                <div class="bar-container"><div id="bar-b" class="bar-fill" style="background: var(--secondary);"></div></div>
+            </div>
         </div>
-        <p id="quiz-desc" style="color: var(--text-muted); margin-bottom: 2rem;">Apply your knowledge to solve the following problem:</p>
-        <div id="quiz-problem" class="quiz-problem">2/3 ÷ 1/2 = ?</div>
-        <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; margin-bottom: 2rem;">
-            <input type="number" id="quiz-ans-n" placeholder="Num" style="width: 6rem; height: 4rem; font-size: 1.5rem;">
-            <span style="font-size: 2rem;">/</span>
-            <input type="number" id="quiz-ans-d" placeholder="Den" style="width: 6rem; height: 4rem; font-size: 1.5rem;">
-            <button id="quiz-check-btn" class="btn btn-primary" style="padding: 1rem 2.5rem;">Submit Result</button>
-        </div>
-        <div id="quiz-feedback" class="quiz-feedback" style="font-size: 1.25rem;"></div>
-        <button id="next-quiz-btn" class="btn-outline" style="margin-top: 1.5rem; display: none;">Next Training Problem →</button>
     </section>
 
-    <!-- Search Engine Content Block (SEO) -->
-    <section id="guides" class="seo-content" style="padding-bottom: 6rem;">
+    <!-- Practice Mode -->
+    <section id="quiz" class="quiz-container">
+        <h2>分数の割り算・練習問題</h2>
+        <div class="quiz-tabs" id="quiz-levels">
+            <button class="tab-btn active" data-level="easy">レベル 1 (初級)</button>
+            <button class="tab-btn" data-level="medium">レベル 2 (中級)</button>
+            <button class="tab-btn" data-level="hard">レベル 3 (上級)</button>
+        </div>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">この問題を解いて、答えを約分した形で入力してください！</p>
+        <div id="quiz-problem" class="quiz-problem">2/3 ÷ 1/2 = ?</div>
+        <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; margin-bottom: 2rem;">
+            <input type="number" id="quiz-ans-n" placeholder="分子" style="width: 6rem; height: 4rem; font-size: 1.5rem;">
+            <span style="font-size: 2rem;">/</span>
+            <input type="number" id="quiz-ans-d" placeholder="分母" style="width: 6rem; height: 4rem; font-size: 1.5rem;">
+            <button id="quiz-check-btn" class="btn btn-primary" style="padding: 1rem 2.5rem;">答え合わせ</button>
+        </div>
+        <div id="quiz-feedback" class="quiz-feedback"></div>
+        <button id="next-quiz-btn" class="btn-outline" style="margin-top: 1.5rem; display: none;">次の問題へ →</button>
+    </section>
+
+    <!-- SEO & Educational Content -->
+    <section class="seo-content" id="how-to">
         <div class="word-problem">
-            <div class="problem-header">📚 Case Study / Real-World Usage</div>
-            <p><strong>Question:</strong> Chef Maria has 3/4 of a liter of milk. She needs 1/8 of a liter for each batch of cupcakes. How many batches can she make?</p>
-            <p style="margin-top: 1rem;"><strong>Logic:</strong> Dividing 3/4 by 1/8. We flip 1/8 to 8/1. 3/4 × 8/1 = 24/4 = 6. Maria can make exactly 6 batches.</p>
+            <div class="problem-header">📚 文章題の例（日常生活での活用）</div>
+            <p><strong>問題：</strong> シェフのマリアさんは 3/4 リットルの牛乳を持っています。1つのケーキを作るのに 1/8 リットル必要です。何個のケーキが作れますか？</p>
+            <p style="margin-top: 1rem;"><strong>考え方：</strong> 3/4 を 1/8 で割ります。1/8 をひっくり返して 8/1 にします。3/4 × 8/1 = 24/4 = 6。答えは「6個」です。</p>
         </div>
 
-        <h2 style="font-size: 2.5rem; text-align: center; margin-bottom: 3rem;">Comprehensive Math Guide</h2>
+        <h2 style="font-size: 2.25rem; text-align: center; margin-bottom: 3rem;">分数の割り算・完全ガイド</h2>
         <div class="grid-2">
             <article class="info-card">
-                <h3>Mixed Fractions vs Improper Fractions</h3>
-                <p>Mixed fractions (like 2 1/3) represent a whole number plus a fractional part. For calculation, these are often harder to manage. **Improper fractions** (7/3) are the computational standard. By converting to improper form first, you ensure that the reciprocal rule applies uniformly to the entire quantity rather than just the fractional tail.</p>
+                <h3>分数の割り算、やり方の基本</h3>
+                <p>分数の割り算の最大のルールは、<strong>「わる数の分母と分子を入れ替えて、かけ算をする」</strong>ことです。これを「逆数（ぎゃくすう）をかける」と言います。計算が終わった後は、必ず約分ができるか確認しましょう。</p>
             </article>
             <article class="info-card">
-                <h3>The "Why" Behind Reciprocals</h3>
-                <p>Division is mathematically identical to multiplying by the inverse. By flipping the second fraction, you are calculating the "density" of the first quantity within the inverted unit of the second. This prevents having to deal with complex nested divisions like a fraction inside another fraction (complex fractions).</p>
+                <h3>なぜ「ひっくり返す」のですか？</h3>
+                <p>割り算は「逆数をかけること」と同じ意味だからです。分母と分子を入れ替えることで、複雑な割り算がシンプルなかけ算になり、誰でも間違いなく計算できるようになります。</p>
             </article>
         </div>
 
-        <!-- Math Glossary (NEW) -->
-        <h2 style="font-size: 2rem; margin-top: 5rem; text-align: center; margin-bottom: 2rem;">Math Terms & Glossary</h2>
+        <!-- Glossary -->
+        <h2 id="glossary" style="font-size: 2rem; margin-top: 5rem; text-align: center; margin-bottom: 2rem;">算数用語集（ボキャブラリー）</h2>
         <div class="glossary-grid">
-            <div class="glossary-item"><span class="glossary-term">Numerator</span>The number above the line in a common fraction showing how many of the parts indicated by the denominator are taken.</div>
-            <div class="glossary-item"><span class="glossary-term">Denominator</span>The number below the line in a common fraction; a divisor.</div>
-            <div class="glossary-item"><span class="glossary-term">Reciprocal</span>A mathematical expression or function so related to another that their product is unity; the multiplicative inverse.</div>
-            <div class="glossary-item"><span class="glossary-term">Simplify</span>To reduce a fraction to its lowest terms by dividing both numerator and denominator by their greatest common factor.</div>
-            <div class="glossary-item"><span class="glossary-term">Common Factor</span>A number that divides exactly into two or more numbers.</div>
-            <div class="glossary-item"><span class="glossary-term">Unity</span>The number one, which is the product of any fraction and its reciprocal.</div>
+            <div class="glossary-item"><span class="glossary-term">分子 (ぶんし)</span>分数で、横棒の上に書く数。全体のうち、どれだけの割合があるかを示します。</div>
+            <div class="glossary-item"><span class="glossary-term">分母 (ぶんぼ)</span>分数で、横棒の下に書く数。全体をいくつに分けたかを示します。</div>
+            <div class="glossary-item"><span class="glossary-term">逆数 (ぎゃくすう)</span>分子と分母を入れ替えた数。ある数とその逆数をかけると、必ず「1」になります。</div>
+            <div class="glossary-item"><span class="glossary-term">約分 (やくぶん)</span>分子と分母を共通の数で割って、もっとも簡単な分数の形にすること。</div>
+            <div class="glossary-item"><span class="glossary-term">帯分数 (たいぶんすう)</span>整数と分数が組み合わさった形（例：2 1/3）。計算のときは仮分数に直します。</div>
+            <div class="glossary-item"><span class="glossary-term">仮分数 (かぶんすう)</span>分子が分母と同じ、または分母より大きい分数（例：7/3）。</div>
         </div>
     </section>
   </main>
 
   <footer>
     <div class="footer-nav">
-      <a href="privacy.html">Privacy Policy</a>
-      <a href="terms.html">Usage Terms</a>
-      <a href="cookie.html">Cookies</a>
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="terms.html">利用規約</a>
+      <a href="cookie.html">クッキーについて</a>
     </div>
-    <p>&copy; 2026 FractionDev Pro Edition. Globally trusted math utility.</p>
+    <p>&copy; 2026 分数の割り算.com. すべての学習者を応援する算数診断スイート。</p>
   </footer>
 
   <script src="script.js"></script>
