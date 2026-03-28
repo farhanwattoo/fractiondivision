@@ -1,317 +1,211 @@
 /**
- * Calculator Logic & UI Handling
+ * FractionDev Pro Edition - Intelligence Suite (Adaptive Quiz & Content)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Theme setup
-    const themeToggle = document.getElementById('themeToggle');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    let savedTheme = localStorage.getItem('theme');
-    
-    if (!savedTheme) {
-        savedTheme = prefersDark ? 'dark' : 'light';
-    }
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-    });
+    // Basic Interface
+    const calcBtn = document.getElementById('calc-btn');
+    const resultSection = document.getElementById('result-section');
+    const resultSteps = document.getElementById('result-steps');
+    const finalResult = document.getElementById('final-result');
+    const resetBtn = document.getElementById('reset-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const historyList = document.getElementById('history-list');
+    const historySection = document.getElementById('history-section');
+    const printBtn = document.getElementById('print-btn');
+    const darkModeBtn = document.getElementById('dark-mode-toggle');
+    const langToggleBtn = document.getElementById('lang-toggle');
 
-    // Mode Toggle
-    const modeToggle = document.getElementById('modeToggle');
-    const keypad = document.getElementById('keypad');
-    let isAdvanced = false;
+    // Advanced Quiz Interface
+    const quizProblem = document.getElementById('quiz-problem');
+    const quizAnsN = document.getElementById('quiz-ans-n');
+    const quizAnsD = document.getElementById('quiz-ans-d');
+    const quizCheckBtn = document.getElementById('quiz-check-btn');
+    const quizFeedback = document.getElementById('quiz-feedback');
+    const nextQuizBtn = document.getElementById('next-quiz-btn');
+    const levelBtns = document.querySelectorAll('.tab-btn');
 
-    modeToggle.addEventListener('click', () => {
-        isAdvanced = !isAdvanced;
-        if (isAdvanced) {
-            keypad.classList.add('advanced-visible');
-            modeToggle.textContent = '基本電卓表示';
-        } else {
-            keypad.classList.remove('advanced-visible');
-            modeToggle.textContent = '関数電卓表示';
-        }
-    });
+    // State
+    let currentLang = 'en';
+    let currentLevel = 'easy'; // easy, medium, hard
+    let currentQuizAnswer = null;
+    let history = JSON.parse(localStorage.getItem('fracHistory') || '[]');
 
-    // Angle Mode Toggle
-    const angleToggle = document.getElementById('angleToggle');
-    let isDegree = false; // default is RAD
+    // Initialization
+    updateHistoryUI();
+    generateQuiz();
+    if (localStorage.getItem('fracTheme') === 'dark') document.body.classList.add('dark-mode');
 
-    angleToggle.addEventListener('click', () => {
-        isDegree = !isDegree;
-        angleToggle.textContent = isDegree ? 'DEG' : 'RAD';
-    });
+    // Event Handlers
+    calcBtn.addEventListener('click', calculate);
+    resetBtn.addEventListener('click', resetCalculator);
+    copyBtn.addEventListener('click', copyResult);
+    printBtn.addEventListener('click', () => window.print());
+    darkModeBtn.addEventListener('click', toggleTheme);
+    langToggleBtn.addEventListener('click', toggleLang);
+    quizCheckBtn.addEventListener('click', checkQuiz);
+    nextQuizBtn.addEventListener('click', generateQuiz);
 
-    // Calculator State
-    let currentInput = '';
-    let isResultDisplayed = false;
-    let history = JSON.parse(localStorage.getItem('calcHistory')) || [];
-
-    const displayInput = document.getElementById('displayInput');
-    const displayHistory = document.getElementById('displayHistory');
-    const historyList = document.getElementById('historyList');
-
-    // Init history
-    renderHistory();
-
-    // Map Buttons
-    const buttons = document.querySelectorAll('#keypad button[data-val]');
-    buttons.forEach(btn => {
+    levelBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const val = btn.getAttribute('data-val');
-            handleInput(val);
+            levelBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentLevel = btn.dataset.level;
+            generateQuiz();
         });
     });
 
-    document.getElementById('btnAC').addEventListener('click', () => {
-        currentInput = '';
-        displayHistory.textContent = '';
-        updateDisplay('0');
-    });
+    // Core Logic
+    function gcd(a, b) { return b === 0 ? Math.abs(a) : gcd(b, a % b); }
+    function simplify(num, den) { const common = gcd(num, den); return [num / common, den / common]; }
 
-    document.getElementById('btnDel').addEventListener('click', () => {
-        if (isResultDisplayed) {
-            currentInput = '';
-            isResultDisplayed = false;
-        } else {
-            currentInput = currentInput.slice(0, -1);
-        }
-        updateDisplay(currentInput || '0');
-    });
-
-    document.getElementById('btnEq').addEventListener('click', () => {
-        calculateResult();
-    });
-
-    // Keyboard support
-    document.addEventListener('keydown', (e) => {
-        const keyMap = {
-            'Enter': '=',
-            '=': '=',
-            'Backspace': 'DEL',
-            'Escape': 'AC',
-            '*': '×',
-            '/': '÷',
-            '+': '+',
-            '-': '-',
-            '%': '%',
-            '^': '^',
-            '(': '(',
-            ')': ')',
-            '.': '.'
-        };
-
-        if (e.key >= '0' && e.key <= '9') {
-            handleInput(e.key);
-        } else if (keyMap[e.key]) {
-            e.preventDefault();
-            if (keyMap[e.key] === '=') calculateResult();
-            else if (keyMap[e.key] === 'DEL') document.getElementById('btnDel').click();
-            else if (keyMap[e.key] === 'AC') document.getElementById('btnAC').click();
-            else handleInput(keyMap[e.key]);
-        }
-    });
-
-    function handleInput(val) {
-        if (isResultDisplayed && !['+', '-', '×', '÷', '%', '^'].includes(val)) {
-            currentInput = '';
-        }
-        isResultDisplayed = false;
-        currentInput += val;
-        updateDisplay(currentInput);
+    function formatFractionHtml(num, den) {
+        if (den === 1) return `<span>${num}</span>`;
+        return `
+            <div style="display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; line-height:1;">
+                <span style="border-bottom: 2px solid currentColor; padding: 0 4px; font-weight:700;">${num}</span>
+                <span style="padding: 0 4px; font-weight:700;">${den}</span>
+            </div>
+        `;
     }
 
-    function updateDisplay(val) {
-        displayInput.textContent = formatDisplay(val);
-        // Scroll to right
-        displayInput.scrollLeft = displayInput.scrollWidth;
+    function calculate() {
+        const w1 = parseInt(document.getElementById('w1').value) || 0;
+        const n1 = parseInt(document.getElementById('n1').value) || 0;
+        const d1 = parseInt(document.getElementById('d1').value) || 1;
+        const w2 = parseInt(document.getElementById('w2').value) || 0;
+        const n2 = parseInt(document.getElementById('n2').value) || 0;
+        const d2 = parseInt(document.getElementById('d2').value) || 1;
+
+        if (d1 === 0 || d2 === 0) { alert("Error: Denominator is 0"); return; }
+        const num1 = (w1 * d1) + n1;
+        const num2 = (w2 * d2) + n2;
+        if (num2 === 0) { alert("Error: Cannot divide by zero."); return; }
+
+        // Final result calculation
+        const resN = num1 * d2;
+        const resD = d1 * num2;
+        const [sN, sD] = simplify(resN, resD);
+
+        // UI: Visualizer
+        document.getElementById('visualizer-area').style.display = 'block';
+        document.getElementById('bar-a').style.width = `${Math.min(100, (num1/d1) * 30)}%`;
+        document.getElementById('bar-b').style.width = `${Math.min(100, (num2/d2) * 30)}%`;
+
+        let steps = [];
+        if (w1 !== 0 || w2 !== 0) {
+            steps.push({ label: "Conversion", math: `${formatFractionHtml(num1, d1)} ÷ ${formatFractionHtml(num2, d2)}` });
+        }
+        steps.push({ label: "Reciprocal", math: `${formatFractionHtml(num1, d1)} × ${formatFractionHtml(d2, num2)}` });
+        steps.push({ label: "Multiplication", math: `${formatFractionHtml(num1 * d2, d1 * num2)}` });
+        if (resD !== sD) steps.push({ label: "Simplification", math: `${formatFractionHtml(sN, sD)}` });
+
+        renderResult(steps, formatFractionHtml(sN, sD));
+        saveHistory(`${w1?w1+' ':''}${n1}/${d1} ÷ ${w2?w2+' ':''}${n2}/${d2} = ${sN}/${sD}`);
     }
 
-    function formatDisplay(val) {
-        // Basic aesthetic formatting, preserving expression
-        return val; 
-    }
-
-    function parseExpression(expr) {
-        // Sanitize and replace
-        let parsed = expr
-            .replace(/×/g, '*')
-            .replace(/÷/g, '/')
-            .replace(/π/g, 'Math.PI')
-            .replace(/e/g, 'Math.E')
-            .replace(/√\(/g, 'Math.sqrt(')
-            .replace(/log\(/g, 'Math.log10(')
-            .replace(/ln\(/g, 'Math.log(')
-            .replace(/abs\(/g, 'Math.abs(')
-            .replace(/\^/g, '**');
-
-        // Handle Factorial (!)
-        parsed = parsed.replace(/(\d+(?:\.\d+)?)!/g, 'factorial($1)');
-        
-        // Handle trig functions considering RAD/DEG
-        const trigFuncs = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan'];
-        trigFuncs.forEach(func => {
-            const regex = new RegExp(func + '\\(', 'g');
-            if (isDegree) {
-                if (func.startsWith('a')) {
-                    // arc functions result needs conversion to degree
-                    parsed = parsed.replace(regex, `(180/Math.PI)*Math.${func}(`);
-                } else {
-                    // standard trig funcs input needs conversion to radian
-                    parsed = parsed.replace(regex, `Math.${func}((Math.PI/180)*`);
-                }
-            } else {
-                parsed = parsed.replace(regex, `Math.${func}(`);
-            }
+    function renderResult(steps, final) {
+        resultSteps.innerHTML = '';
+        steps.forEach(step => {
+            const card = document.createElement('div');
+            card.className = 'step-card';
+            card.innerHTML = `<div class="step-label">${step.label}</div><div class="step-content">${step.math}</div>`;
+            resultSteps.appendChild(card);
         });
-
-        // Add implicit closing parentheses
-        const openP = (parsed.match(/\(/g) || []).length;
-        const closeP = (parsed.match(/\)/g) || []).length;
-        for (let i = 0; i < openP - closeP; i++) {
-            parsed += ')';
-        }
-
-        return parsed;
+        finalResult.innerHTML = final;
+        resultSection.style.display = 'block';
+        resultSection.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function factorial(n) {
-        n = parseFloat(n);
-        if (n < 0 || !Number.isInteger(n)) return NaN;
-        if (n === 0 || n === 1) return 1;
-        let res = 1;
-        for (let i = 2; i <= n; i++) res *= i;
-        return res;
+    function saveHistory(equation) {
+        history.unshift(equation);
+        if (history.length > 5) history.pop();
+        localStorage.setItem('fracHistory', JSON.stringify(history));
+        updateHistoryUI();
     }
 
-    function calculateResult() {
-        if (!currentInput) return;
-        
-        try {
-            const parsedExpr = parseExpression(currentInput);
-            
-            // Check for unsafe characters
-            if (/[^0-9+\-*/().,% \w|]/.test(parsedExpr)) {
-                throw new Error("Invalid characters");
-            }
-
-            // Safe Evaluation using Function with restricted scope
-            const evaluate = new Function('Math', 'factorial', `
-                "use strict";
-                try {
-                    return (${parsedExpr});
-                } catch(e) {
-                    throw e;
-                }
-            `);
-
-            let res = evaluate(Math, factorial);
-
-            // Fix floating point issues
-            if (typeof res === 'number') {
-                res = Math.round(res * 1e12) / 1e12;
-            }
-
-            if (!isFinite(res) || isNaN(res)) {
-                res = "エラー (Error)";
-            }
-
-            displayHistory.textContent = currentInput + ' =';
-            
-            // Add to history
-            const historyItem = {
-                expr: currentInput,
-                result: res.toString()
-            };
-            addToHistory(historyItem);
-
-            currentInput = res.toString();
-            isResultDisplayed = true;
-            updateDisplay(currentInput);
-
-        } catch (e) {
-            displayHistory.textContent = currentInput;
-            currentInput = "エラー";
-            updateDisplay(currentInput);
-            isResultDisplayed = true;
-        }
-    }
-
-    // History Functions
-    function addToHistory(item) {
-        history.unshift(item);
-        if (history.length > 50) history.pop(); // keep last 50
-        localStorage.setItem('calcHistory', JSON.stringify(history));
-        renderHistory();
-    }
-
-    function renderHistory() {
+    function updateHistoryUI() {
+        if (!historySection) return;
         historyList.innerHTML = '';
-        history.forEach((item, index) => {
-            const li = document.createElement('li');
-            li.className = 'history-item';
-            li.innerHTML = `
-                <div class="history-item-expr">${item.expr} =</div>
-                <div class="history-item-result">${item.result}</div>
-            `;
-            li.addEventListener('click', () => {
-                currentInput = item.result;
-                displayHistory.textContent = "履歴読込";
-                updateDisplay(currentInput);
-                isResultDisplayed = true;
-                if (window.innerWidth < 768) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            });
-            historyList.appendChild(li);
+        history.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerText = item;
+            historyList.appendChild(div);
         });
     }
 
-    document.getElementById('clearHistory').addEventListener('click', () => {
-        history = [];
-        localStorage.removeItem('calcHistory');
-        renderHistory();
-    });
+    function generateQuiz() {
+        let n1, d1, n2, d2, w1 = 0, w2 = 0;
 
-    document.getElementById('exportCsv').addEventListener('click', () => {
-        if (history.length === 0) {
-            showToast("履歴がありません");
-            return;
+        if (currentLevel === 'easy') {
+            n1 = Math.floor(Math.random() * 4) + 1;
+            d1 = Math.floor(Math.random() * 4) + 2;
+            n2 = Math.floor(Math.random() * 4) + 1;
+            d2 = Math.floor(Math.random() * 4) + 2;
+        } else if (currentLevel === 'medium') {
+            n1 = Math.floor(Math.random() * 8) + 1;
+            d1 = Math.floor(Math.random() * 10) + 2;
+            n2 = Math.floor(Math.random() * 8) + 1;
+            d2 = Math.floor(Math.random() * 10) + 2;
+        } else { // Hard (includes mixed numbers)
+            w1 = Math.floor(Math.random() * 3) + 1;
+            n1 = Math.floor(Math.random() * 5) + 1;
+            d1 = Math.floor(Math.random() * 5) + 2;
+            w2 = Math.floor(Math.random() * 2) + 1;
+            n2 = Math.floor(Math.random() * 5) + 1;
+            d2 = Math.floor(Math.random() * 5) + 2;
         }
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // UTF-8 BOM
-        csvContent += "計算式,結果\r\n";
-        history.forEach(row => {
-            csvContent += `"${row.expr}","${row.result}"\r\n`;
-        });
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "calculator_history.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast("エクスポートしました");
-    });
 
-    // Copy to clipboard
-    displayInput.addEventListener('click', () => {
-        if (!currentInput || currentInput === 'エラー') return;
-        navigator.clipboard.writeText(currentInput).then(() => {
-            showToast("コピーしました！");
-        }).catch(() => {
-            showToast("コピーに失敗しました");
-        });
-    });
+        const totalN1 = (w1 * d1) + n1;
+        const totalN2 = (w2 * d2) + n2;
+        currentQuizAnswer = simplify(totalN1 * d2, d1 * totalN2);
 
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
+        const problemStr = `${w1?w1+' ':''}${n1}/${d1} ÷ ${w2?w2+' ':''}${n2}/${d2} = ?`;
+        quizProblem.innerText = problemStr;
+        
+        // Reset feedback
+        quizAnsN.value = '';
+        quizAnsD.value = '';
+        quizFeedback.innerText = '';
+        nextQuizBtn.style.display = 'none';
+        quizFeedback.style.color = 'inherit';
+    }
+
+    function checkQuiz() {
+        const uN = parseInt(quizAnsN.value);
+        const uD = parseInt(quizAnsD.value) || 1;
+        
+        if (uN === currentQuizAnswer[0] && uD === currentQuizAnswer[1]) {
+            quizFeedback.innerText = "🎉 Accurate! You've mastered this level.";
+            quizFeedback.style.color = 'var(--secondary)';
+            nextQuizBtn.style.display = 'inline-block';
+        } else {
+            quizFeedback.innerText = "❌ Incorrect. Try simplifying again! The answer was " + currentQuizAnswer[0]+"/"+currentQuizAnswer[1];
+            quizFeedback.style.color = 'var(--danger)';
+            nextQuizBtn.style.display = 'inline-block';
+        }
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('fracTheme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    }
+
+    function toggleLang() {
+        currentLang = currentLang === 'en' ? 'ja' : 'en';
+        alert("Language toggle feature currently focusing on SEO content labels. Translating text...");
+        // This is a placeholder for full dynamic JA translation if required later
+    }
+
+    function resetCalculator() {
+        document.querySelectorAll('input').forEach(i => i.value = '');
+        resultSection.style.display = 'none';
+        document.getElementById('visualizer-area').style.display = 'none';
+    }
+
+    function copyResult() {
+        const text = finalResult.innerText;
+        navigator.clipboard.writeText(text).then(() => alert("Results copied to clipboard."));
     }
 });
