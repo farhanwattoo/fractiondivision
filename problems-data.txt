@@ -1,0 +1,7 @@
+[
+  {"slug":"/problems/1-2-divided-by-3-4","file":"problems/1-2-divided-by-3-4.html","keyword":"1/2 ÷ 3/4","a":"1/2","b":"3/4","c":"4/3","answer":"2/3"},
+  {"slug":"/problems/2-3-divided-by-5-6","file":"problems/2-3-divided-by-5-6.html","keyword":"2/3 ÷ 5/6","a":"2/3","b":"5/6","c":"6/5","answer":"4/5"},
+  {"slug":"/problems/3-4-divided-by-7-8","file":"problems/3-4-divided-by-7-8.html","keyword":"3/4 ÷ 7/8","a":"3/4","b":"7/8","c":"8/7","answer":"6/7"},
+  {"slug":"/problems/5-6-divided-by-1-2","file":"problems/5-6-divided-by-1-2.html","keyword":"5/6 ÷ 1/2","a":"5/6","b":"1/2","c":"2/1","answer":"5/3"},
+  {"slug":"/problems/7-9-divided-by-2-5","file":"problems/7-9-divided-by-2-5.html","keyword":"7/9 ÷ 2/5","a":"7/9","b":"2/5","c":"5/2","answer":"35/18"}
+]

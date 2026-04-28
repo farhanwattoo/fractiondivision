@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resetBtn.addEventListener('click', resetCalculator);
     copyBtn.addEventListener('click', copyResult);
     printBtn.addEventListener('click', () => window.print());
-    darkModeBtn.addEventListener('click', toggleTheme);
+    if (darkModeBtn) darkModeBtn.addEventListener('click', toggleTheme);
     quizCheckBtn.addEventListener('click', checkQuiz);
     nextQuizBtn.addEventListener('click', generateQuiz);
 
@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         history.unshift(equation);
         if (history.length > 5) history.pop();
         localStorage.setItem('fracHistory', JSON.stringify(history));
+        updateHistoryUI();
     }
 
     function updateHistoryUI() {
