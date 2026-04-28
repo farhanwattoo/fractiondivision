@@ -1,6 +1,6 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
-$baseUrl = "https://xn--n8jxc0d306o4xmc.com"
+$baseUrl = "https://xn--u9jwc214lnma979ejm4a.com"
 $siteName = "&#20998;&#25968;&#12398;&#21106;&#12426;&#31639;.com"
 $siteNamePlain = [System.Net.WebUtility]::HtmlDecode($siteName)
 $lastMod = "2026-04-27"
